@@ -142,7 +142,7 @@ class Router():
             self.version = self.ssh_cmd(":put [system resource get version]").rstrip()
             self.remote_mt_cfg = '\n'.join(self.ssh_cmd("/export").split('\r\n')[3:])
             self.backup_dir_name = "{0}-{1}-{2}".format(self.ip, self.identity, self.serial_number)
-            if not (self.remote_mt_cfg and self.identity and self.version and self.serial_number):
+            if not (self.remote_mt_cfg and self.identity and self.version or self.serial_number):
                 self.error = "Can't get data from {0}@{1}:{2}\n".format(config['Login'], self.ip, str(self.port))
                 if self.verbose: print(self.error[:-1])
                 self.ssh_client.close()
