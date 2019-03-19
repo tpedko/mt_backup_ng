@@ -36,7 +36,7 @@
 
 3. Переключаемся на свежесозданного пользователя и копируем себе скрипт  
 	`su - mt`  
-	`git clone https://github.com/0x566164696D/mt_backup_ng.git`  
+	`git clone https://github.com/tpedko/mt_backup_ng.git`  
 	`cd mt_backup_ng`
 
 4. Выполняем настройку скрипта, редактируем файл config.conf  
