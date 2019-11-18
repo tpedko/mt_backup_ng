@@ -1,6 +1,8 @@
 #!/usr/bin/python
 import os
-import sys 
+import sys
+reload(sys)
+sys.setdefaultencoding('utf8')
 #import subprocess
 import smtplib
 import re
@@ -9,8 +11,8 @@ import difflib
 import datetime
 from multiprocessing.dummy import Pool as ThreadPool
 from time import localtime
-from time import strftime 
-from time import sleep 
+from time import strftime
+from time import sleep
 from distutils.version import LooseVersion
 try:
     import paramiko
@@ -48,7 +50,7 @@ class Router():
         self.duration = ""
         self.ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         self.verbose = True
-    
+
     def getIPAndPort(self):
         return self.ip + ":" + self.port
 
@@ -61,10 +63,10 @@ class Router():
     def ssh_connect(self):
         try:
             if config['auth_method'] == "key": 
-                self.ssh_client.connect(hostname = self.ip, port = int(self.port), timeout = 3,
+                self.ssh_client.connect(hostname = self.ip, port = int(self.port), timeout = 10,
                                         username=config['Login'],pkey = config['pkey'])
             else:
-                self.ssh_client.connect(hostname = self.ip, port = int(self.port), timeout = 3,
+                self.ssh_client.connect(hostname = self.ip, port = int(self.port), timeout = 10,
                                         look_for_keys = False, allow_agent = False,
                                         username = config['Login'], password = config['Password'])
             return True
@@ -78,7 +80,7 @@ class Router():
 
     def ssh_cmd(self, cmd):
         try:
-            stdin, stdout, stderr = self.ssh_client.exec_command(cmd, timeout=10)
+            stdin, stdout, stderr = self.ssh_client.exec_command(cmd, timeout=30)
             self.ssh_get_data = stdout.read()
             return self.ssh_get_data.decode('utf-8')
         except Exception as err:
@@ -155,13 +157,13 @@ class Router():
             self.ssh_client.close()
             self.duration = datetime.datetime.now() - self.start_time
             print("First time backup for {0}:{1} complete in {2} seconds.".format(self.ip, self.port, int(self.duration.total_seconds())))
-            
+
         else:
             self.create_backup(is_first=False)
             self.ssh_client.close()
             self.duration = datetime.datetime.now() - self.start_time
             print("Backup for {0}:{1} complete in {2} seconds.".format(self.ip, self.port, int(self.duration.total_seconds())))
-            
+
 
     def diff_report_format(self):
         passwd_pattern = re.compile( '(password=\\W+\S+|password=\S+|authentication-key=\\W+\S+|authentication-key=\S+|wpa2-pre-shared-key=\\W+\S+|wpa2-pre-shared-key=\S+|passphrase=\\W+\S+|passphrase=\S+|secret=\\W+\S+|secret=\S+)' )
@@ -246,9 +248,9 @@ print("""
   MMM      MMM  III  KKK KKK   RRRRRR    OOO  OOO     TTT     III  KKK KKK
   MMM      MMM  III  KKK  KKK  RRR  RRR   OOOOOO      TTT     III  KKK  KKK
 ------------------------------------------------------------------------------
- backup script by V.Shepelev     ver 1.1 beta                vs@foto-glaz.ru
 """)
 
+#  backup script by V.Shepelev     ver 1.1 beta                vs@foto-glaz.ru
 try:
     routers_list = []
     with open("ip_list.txt") as f:
@@ -312,7 +314,7 @@ print("_" * 78)
 
 sctipt_duration = datetime.datetime.now() - script_start_time
 print("Script run time: {0} seconds".format(int(sctipt_duration.total_seconds())))
-print("_" * 78)            
+print("_" * 78)
 if changed:
     print("--->>> Sending email diff report")
     sendmail(config["smtp_server"], config["smtp_login"], config["smtp_paswd"], config["email_from"],
@@ -320,4 +322,4 @@ if changed:
 if failed:
     print("--->>> Sending email error report")
     sendmail(config["smtp_server"], config["smtp_login"], config["smtp_paswd"], config["email_from"],
-                    config["email_to"], "Mikrotik backup script: Error report", "".join(failed)) 
+                    config["email_to"], "Mikrotik backup script: Error report", "".join(failed))
